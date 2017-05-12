@@ -1,0 +1,19 @@
+%link{rel:'stylesheet', href:'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'}
+%link{rel:'stylesheet', href:'index.css'}
+%script{src:'jquery-3.2.1.min.js'}
+%script{src:'https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js'}
+%script{src:'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'}
+%script{src:'index.js'}
+
+.container-fluid{:'ng-app'=> 'myApp', :'ng-controller'=> 'myCtrl'}
+  .row
+    .col-sm-3
+      #fretboard.full_size
+        #positionBorder{:'ng-style'=> '{"margin-top": startingFret * fretHeight, height: positionSize * fretHeight}'}
+    .col-sm-5
+      h
+    .col-sm-4
+      %label{:for=>'starting_fret'}Starting Fret:
+      %input{:type=>'number', :'ng-keypress'=> 'drawBox(startingFret, positionSize)', :'ng-model'=> 'startingFret'}
+      %p {{startingFret}} {{positionSize}}
+      %p {{fretHeight}}
