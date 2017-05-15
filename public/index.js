@@ -9,6 +9,8 @@ app.controller('myCtrl', function($scope) {
   var zoom = $('#zoom')[0];
   var zoomCtx = zoom.getContext('2d');
 
+  $scope.OPEN_STRINGS = ['E','A','D','G','B','E']
+  $scope.STRINGS_TO_USE = 
   $scope.fretHeight = $('#fretboard').height() / FRET_DIVIDOR;
   $scope.startingFret = 3;
   $scope.positionSize = 6;
