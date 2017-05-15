@@ -7,13 +7,11 @@
 
 .container-fluid{:'ng-app'=> 'myApp', :'ng-controller'=> 'myCtrl'}
   .row
-    .col-sm-3
+    #firstCol.col-sm-3
       #fretboard.full_size
-        #positionBorder{:'ng-style'=> '{"margin-top": startingFret * fretHeight, height: positionSize * fretHeight}'}
-    .col-sm-5
-      h
-    .col-sm-4
+        #positionBorder{:'ng-style'=> '{"margin-top": (startingFret - 1) * fretHeight + "px", height: positionSize * fretHeight + "px"}'}
+    #middleCol.col-sm-5
+      %canvas.full_size{:id=> 'zoom'}
+    #lastCol.col-sm-4
       %label{:for=>'starting_fret'}Starting Fret:
-      %input{:type=>'number', :'ng-keypress'=> 'drawBox(startingFret, positionSize)', :'ng-model'=> 'startingFret'}
-      %p {{startingFret}} {{positionSize}}
-      %p {{fretHeight}}
+      %input{:type=>'number', :'ng-model'=> 'startingFret'}

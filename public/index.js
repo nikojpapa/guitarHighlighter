@@ -1,19 +1,27 @@
+FRET_DIVIDOR = 12.2
+
 var app = angular.module('myApp', []);
-var canvas;
-var ctx;
 var img = new Image();
 img.src = 'images/blank_fretboard.png'
 
-// $(function() {
-//   drawBox(0);
-// })
-
 app.controller('myCtrl', function($scope) {
-  $scope.fretHeight = 100.0 / 17;
+  var fretboard = $('#fretboard')
+  var zoom = $('#zoom')[0];
+  var zoomCtx = zoom.getContext('2d');
+
+  $scope.fretHeight = $('#fretboard').height() / FRET_DIVIDOR;
   $scope.startingFret = 3;
   $scope.positionSize = 6;
+  zoomCtx.drawImage(img,0,0);
 
-  // $scope.$watch($('#fretboard'), function (newValue) {
-  //   $scope.fretHeight = $('#fretboard').height() / 17;
-  // });
+  $scope.$watch('startingFret', function(newValue, oldValue) {
+    var fretSize = img.height / FRET_DIVIDOR;
+    var startingFretPx  = (newValue - 1) * fretSize;
+    var borderHeight    = $scope.positionSize * fretSize;
+    var zoomHeight      = zoom.height;
+    var zoomWidth       = zoom.width;
+    zoomCtx.fillStyle = 'white';
+    zoomCtx.fillRect(0,0, zoom.width, zoom.height);
+    zoomCtx.drawImage(img, 0, startingFretPx, img.width, borderHeight, 0, 0, zoomWidth, zoomHeight);
+  })
 })

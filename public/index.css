@@ -12,6 +12,10 @@
   float: left;
   width: 100%;
 }
+#zoom {
+  /*width: 100%;*/
+  /*height: 100%;*/
+}
 .full_size {
   width: 100%;
   height: 100%;
