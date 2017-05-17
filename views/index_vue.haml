@@ -1,31 +1,36 @@
-%link{rel:'stylesheet', href:'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'}
+%link{rel:'stylesheet', href:'bootstrap.min.css'}
 %link{rel:'stylesheet', href:'index.css'}
 
 %script{src:'teoria.js'}
 %script{src:'jquery-3.2.1.min.js'}
 %script{src:'vue.js'}
-%script{src:'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'}
+%script{src:'bootstrap.min.js'}
 
-.container-fluid{:id=> 'myApp'}
+.container-fluid{:id=> "myApp"}
   .row
     #firstCol.col-sm-3
       #fretboard.fullSize
-        #positionBorder{:':style'=> 'positionBorderStyle'}
+        #positionBorder{:':style'=> "positionBorderStyle"}
     #middleCol.col-sm-5
-      %canvas.fullSize{:id=>'zoom'}
+      %canvas.fullSize{:id=>"zoom"}
     #lastCol.col-sm-4
-      %label{:for=>'startingFret'}Starting Fret:
-      %input{:type=>'number', :'v-model.number'=> 'startingFret'}
+      %label{:for=>"startingFret"}Starting Fret:
+      %input{:type=>"number", :'v-model.number'=> "startingFret"}
       %br
-      %label{:for=>'positionSize'}Position Size:
-      %input{:type=>'number', :'v-model.number'=> 'positionSize'}
+      %label{:for=>"positionSize"}Position Size:
+      %input{:type=>"number", :'v-model.number'=> "positionSize"}
       %br
-      %label{:for=>'openStrings'}Tuning:
-      %template{:id=> 'openStrings', :'v-for'=> 'stringNum in 6'}
+      %label{:for=>"openStrings"}Tuning:
+      %template{:id=> "openStrings", :'v-for'=> "stringNum in 6"}
         %li
           %label {{stringNum}}:
           %input{:type=>"text", :'v-model.number'=> "openStrings[stringNum-1]", :':disabled'=> "useStrings.indexOf(stringNum-1) === -1"}
           %input{:type=>"checkbox", :':value'=> "stringNum - 1", :'v-model'=> "useStrings"}
+      %label{:for=>"chords"}Chords:
+      %template{:id=>"chords", :'v-for'=> "(strings, chordName) in chordShapes"}
+        %li{:'@click'=> "selectedChord = chordName"} {{chordName}}
+      %div Selected chord: {{selectedChord}}
 
+%script{src:'utils.js'}
 %script{src:'musicFuncs.js'}
 %script{src:'index_vue.js'}

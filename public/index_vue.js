@@ -1,58 +1,11 @@
-FRETBOARD_IMG = new Image();
+FRETBOARD_IMG     = new Image();
 FRETBOARD_IMG.src = 'images/blank_fretboard.png';
-FRET_DIVIDOR = 12.2;
+FRET_DIVIDOR      = 12.2;
 
-FRETBOARD_DIV = null;
-ZOOM_DIV = null;
-ZOOM_CTX = null;
-
-var range = function(start, end, step) {  //taken from http://stackoverflow.com/a/3895521/3869199
-  var range = [];
-  var typeofStart = typeof start;
-  var typeofEnd = typeof end;
-
-  if (step === 0) {
-    throw TypeError("Step cannot be zero.");
-  }
-
-  if (typeofStart == "undefined" || typeofEnd == "undefined") {
-    throw TypeError("Must pass start and end arguments.");
-  } else if (typeofStart != typeofEnd) {
-    throw TypeError("Start and end arguments must be of same type.");
-  }
-
-  typeof step == "undefined" && (step = 1);
-
-  if (end < start) {
-    step = -step;
-  }
-
-  if (typeofStart == "number") {
-    while (step > 0 ? end >= start : end <= start) {
-      range.push(start);
-      start += step;
-    }
-
-  } else if (typeofStart == "string") {
-    if (start.length != 1 || end.length != 1) {
-      throw TypeError("Only strings with one character are supported.");
-    }
-
-    start = start.charCodeAt(0);
-    end = end.charCodeAt(0);
-
-    while (step > 0 ? end >= start : end <= start) {
-      range.push(String.fromCharCode(start));
-      start += step;
-    }
-
-  } else {
-    throw TypeError("Only string and number types are supported");
-  }
-
-  return range;
-
-}
+FRETBOARD_DIV         = null;
+ZOOM_DIV              = null;
+ZOOM_CTX              = null;
+STRING_SPACING_OFFSET = null;
 
 // Vue.component('positionBorder', {
 //   props: [
@@ -122,7 +75,8 @@ var app  = new Vue({
       teoria.chord('C'),
       teoria.chord('F'),
       teoria.chord('G')
-    ]
+    ],
+    selectedChord: 'C'
   },
   computed: {
     positionBorderStyle: function() {
@@ -132,7 +86,7 @@ var app  = new Vue({
       }
     },
     numFrets: function() {
-      return this.startingFret + this.positionSize;
+      return Number(this.startingFret) + Number(this.positionSize);
     },
     fretboard: function() {
       return generateFretboard(this.openStrings, this.numFrets);
@@ -145,30 +99,75 @@ var app  = new Vue({
     FRETBOARD_DIV = $('#fretboard')[0];
     ZOOM_DIV = $('#zoom')[0];
     ZOOM_CTX = ZOOM_DIV.getContext("2d");
+    STRING_SPACING_OFFSET = ZOOM_DIV.width * 0.12;
     this.drawZoom();
   },
   watch: {
     startingFret: function() {
-      this.drawZoom()
+      this.drawZoom();
     },
     positionSize: function() {
-      this.drawZoom()
+      this.drawZoom();
+    },
+    selectedChord: function() {
+      this.drawZoom();
     }
   },
   methods: {
-    fretHeight: function() {
-      return $('#fretboard').height() / FRET_DIVIDOR;
+    fretHeight       : function() {return $('#fretboard').height() / FRET_DIVIDOR;},
+    imgFretSize      : function() {return FRETBOARD_IMG.height / FRET_DIVIDOR;},
+    zoomStringSpacing: function() {return (ZOOM_DIV.width - STRING_SPACING_OFFSET) / (this.openStrings.length - 1);},
+    zoomFretSize     : function() {return ZOOM_DIV.height / this.positionSize;},
+    startingFretPx   : function() {return (this.startingFret - 1) * this.imgFretSize();},
+    borderHeight     : function() {return this.positionSize * this.imgFretSize();},
+    zoomHeight       : function() {return ZOOM_DIV.height;},
+    zoomWidth        : function() {return ZOOM_DIV.width;},
+    drawZoomedFretboard: function() {
+      ZOOM_CTX.fillStyle = 'white';
+      ZOOM_CTX.fillRect(0,0, this.zoomWidth(), this.zoomHeight());
+      ZOOM_CTX.drawImage(FRETBOARD_IMG, 0, this.startingFretPx(), FRETBOARD_IMG.width, this.borderHeight(), 0, 0, this.zoomWidth(), this.zoomHeight());
+    },
+    drawFingers: function() {
+      var selectedChord       = this.selectedChord;
+      var zoomWidth           = this.zoomWidth();
+      var zoomHeight          = this.zoomHeight();
+      var zoomStringSpacing   = this.zoomStringSpacing();
+      var zoomFretSize        = this.zoomFretSize();
+      var chordShapes         = this.chordShapes;
+      var chordOffset         = zoomFretSize / (Object.keys(this.chordShapes).length + 1);
+
+      var chordNameIndex = 0;
+      for (var chordName in chordShapes) {
+        var colorNames = Object.keys(Colors.names)
+        var alpha      = 0.5;
+        if (selectedChord === chordName) alpha = 1;
+        var chordColor = hex2rgba(Colors.names[colorNames[(chordNameIndex++ * 7) % colorNames.length]], alpha);
+        var strings = chordShapes[chordName];
+        strings.forEach(function(noteNames, stringNum) {
+          var xPos = stringNum * zoomStringSpacing + STRING_SPACING_OFFSET;
+          noteNames.forEach(function(noteName, fretNum) {
+            if (noteName != 'x') {
+              var yPos = fretNum * zoomFretSize + chordNameIndex * chordOffset;
+              var radius = chordOffset;
+
+              var can2 = document.createElement('canvas');
+              can2.width = zoomWidth;
+              can2.height = zoomHeight;
+              ctx2 = can2.getContext('2d');
+
+              ZOOM_CTX.beginPath();
+              ZOOM_CTX.arc(xPos,yPos,radius,0,2*Math.PI);
+              ZOOM_CTX.fillStyle = chordColor;
+              ZOOM_CTX.fill();
+              ZOOM_CTX.stroke();
+            }
+          })
+        })
+      }
     },
     drawZoom: function() {
-      console.log('draw');
-      var imgFretSize = FRETBOARD_IMG.height / FRET_DIVIDOR;
-      var startingFretPx  = (this.startingFret - 1) * imgFretSize;
-      var borderHeight    = this.positionSize * imgFretSize;
-      var zoomHeight      = ZOOM_DIV.height;
-      var zoomWidth       = ZOOM_DIV.width;
-      ZOOM_CTX.fillStyle = 'white';
-      ZOOM_CTX.fillRect(0,0, ZOOM_DIV.width, ZOOM_DIV.height);
-      ZOOM_CTX.drawImage(FRETBOARD_IMG, 0, startingFretPx, FRETBOARD_IMG.width, borderHeight, 0, 0, zoomWidth, zoomHeight);
+      this.drawZoomedFretboard();
+      this.drawFingers();
     }
   }
 })

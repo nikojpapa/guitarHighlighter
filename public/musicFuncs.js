@@ -33,6 +33,7 @@ function generateChordShapes(chordProgression, fretboard, startingFret, position
   chordShapes = {};
   chordProgression.forEach(function(chord) {
     fretRegion    = [];
+    chordName     = chord.name;
     notesInChord  = chord.notes();
 
     chordToNumTranslator  = {};
@@ -55,7 +56,7 @@ function generateChordShapes(chordProgression, fretboard, startingFret, position
       })
       fretRegion.push(stringRegion);
     })
-    chordShapes[noteNamesInChord.join(',')] = fretRegion;
+    chordShapes[chordName] = fretRegion;
   })
   return chordShapes;
 }
