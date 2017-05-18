@@ -6,31 +6,21 @@
 %script{src:'vue.js'}
 %script{src:'bootstrap.min.js'}
 
-.container-fluid{:id=> "myApp"}
-  .row
+= haml :settings
+
+%div{:id=> "myApp"}
+
+  .container{:id=>"settingsPopover"}
+    %settings{:':starting-fret.sync'=>"startingFret", :':position-size.sync'=>"positionSize", :':use-strings.sync'=>"useStrings", :':open-strings.sync'=>"openStrings", :':chord-shapes.sync'=>"chordShapes", :':selected-chord.sync'=>"selectedChord"}
+    / %a.btn.btn-lg.btn-primary{:href=>"#", :role=>"button", :'data-html'=>"true", :'data-toggle'=> "popover", :title=> "Settings", :':data-content'=> "settingsContent"}Toggle Popover {{selectedChord}}
+
+  .container-fluid
     #firstCol.col-sm-3
-      #fretboard.fullSize
-        #positionBorder{:':style'=> "positionBorderStyle"}
-    #middleCol.col-sm-5
+      %canvas.fullSize{id:"fretboard"}
+    #middleCol.col-sm-9
       %canvas.fullSize{:id=>"zoom"}
-    #lastCol.col-sm-4
-      %label{:for=>"startingFret"}Starting Fret:
-      %input{:type=>"number", :'v-model.number'=> "startingFret"}
-      %br
-      %label{:for=>"positionSize"}Position Size:
-      %input{:type=>"number", :'v-model.number'=> "positionSize"}
-      %br
-      %label{:for=>"openStrings"}Tuning:
-      %template{:id=> "openStrings", :'v-for'=> "stringNum in 6"}
-        %li
-          %label {{stringNum}}:
-          %input{:type=>"text", :'v-model.number'=> "openStrings[stringNum-1]", :':disabled'=> "useStrings.indexOf(stringNum-1) === -1"}
-          %input{:type=>"checkbox", :':value'=> "stringNum - 1", :'v-model'=> "useStrings"}
-      %label{:for=>"chords"}Chords:
-      %template{:id=>"chords", :'v-for'=> "(strings, chordName) in chordShapes"}
-        %li{:'@click'=> "selectedChord = chordName"} {{chordName}}
-      %div Selected chord: {{selectedChord}}
 
 %script{src:'utils.js'}
 %script{src:'musicFuncs.js'}
+%script{src:'settings_vue.js'}
 %script{src:'index_vue.js'}

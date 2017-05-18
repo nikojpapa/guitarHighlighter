@@ -3,59 +3,14 @@ FRETBOARD_IMG.src = 'images/blank_fretboard.png';
 FRET_DIVIDOR      = 12.2;
 
 FRETBOARD_DIV         = null;
+FRETBOARD_CTX         = null;
 ZOOM_DIV              = null;
 ZOOM_CTX              = null;
 STRING_SPACING_OFFSET = null;
 
-// Vue.component('positionBorder', {
-//   props: [
-//     'startingFret',
-//     'positionSize'
-//   ],
-//   template: "<"
-// })
-
-// Vue.component('fretboard', {
-//   props: [
-//     'startingFret',
-//     'positionSize'
-//   ],
-//   template: '<div><div id="positionBorder" :style="positionBorderStyle"/></div>'
-// })
-
-// Vue.component('zoomed-position', {
-//   props: [
-//     'startingFret',
-//     'positionSize'
-//   ],
-//   template: '<canvas />',
-//   mounted: function () {
-//     FRETBOARD_DIV = $('#fretboard')[0];
-//     ZOOM_DIV = $('#zoom')[0];
-//     ZOOM_CTX = ZOOM_DIV.getContext("2d");
-//     this.drawZoom();
-//   },
-//   watch: {
-//     startingFret: function() {
-//       this.drawZoom()
-//     },
-//     positionSize: function() {
-//       this.drawZoom()
-//     }
-//   },
-//   methods: {
-//     drawZoom: function() {
-//       var imgFretSize = FRETBOARD_IMG.height / FRET_DIVIDOR;
-//       var startingFretPx  = (this.startingFret - 1) * imgFretSize;
-//       var borderHeight    = this.positionSize * imgFretSize;
-//       var zoomHeight      = ZOOM_DIV.height;
-//       var zoomWidth       = ZOOM_DIV.width;
-//       ZOOM_CTX.fillStyle = 'white';
-//       ZOOM_CTX.fillRect(0,0, ZOOM_DIV.width, ZOOM_DIV.height);
-//       ZOOM_CTX.drawImage(FRETBOARD_IMG, 0, startingFretPx, FRETBOARD_IMG.width, borderHeight, 0, 0, zoomWidth, zoomHeight);
-//     }
-//   }
-// })
+$(function() {
+  $('[data-toggle="popover"]').popover();
+})
 
 var app  = new Vue({
   el: '#myApp',
@@ -79,12 +34,9 @@ var app  = new Vue({
     selectedChord: 'C'
   },
   computed: {
-    positionBorderStyle: function() {
-      return {
-        'margin-top': (this.startingFret - 1) * this.fretHeight() + "px",
-        'height': this.positionSize * this.fretHeight() + "px"
-      }
-    },
+    // settingsContent: function() {
+    //   return $('#settingsContent').html();
+    // },
     numFrets: function() {
       return Number(this.startingFret) + Number(this.positionSize);
     },
@@ -97,31 +49,45 @@ var app  = new Vue({
   },
   mounted: function () {
     FRETBOARD_DIV = $('#fretboard')[0];
+    FRETBOARD_CTX = FRETBOARD_DIV.getContext('2d');
     ZOOM_DIV = $('#zoom')[0];
-    ZOOM_CTX = ZOOM_DIV.getContext("2d");
+    ZOOM_CTX = ZOOM_DIV.getContext('2d');
     STRING_SPACING_OFFSET = ZOOM_DIV.width * 0.12;
-    this.drawZoom();
+    this.drawBoards();
   },
   watch: {
     startingFret: function() {
-      this.drawZoom();
+      this.drawBoards();
     },
     positionSize: function() {
-      this.drawZoom();
+      this.drawBoards();
     },
     selectedChord: function() {
-      this.drawZoom();
+      this.drawBoards();
     }
   },
   methods: {
-    fretHeight       : function() {return $('#fretboard').height() / FRET_DIVIDOR;},
+    fretHeight       : function() {return this.fretboardHeight() / FRET_DIVIDOR;},
     imgFretSize      : function() {return FRETBOARD_IMG.height / FRET_DIVIDOR;},
     zoomStringSpacing: function() {return (ZOOM_DIV.width - STRING_SPACING_OFFSET) / (this.openStrings.length - 1);},
     zoomFretSize     : function() {return ZOOM_DIV.height / this.positionSize;},
     startingFretPx   : function() {return (this.startingFret - 1) * this.imgFretSize();},
     borderHeight     : function() {return this.positionSize * this.imgFretSize();},
+    fretboardHeight  : function() {return FRETBOARD_DIV.height;},
+    fretboardWidth   : function() {return FRETBOARD_DIV.width;},
     zoomHeight       : function() {return ZOOM_DIV.height;},
     zoomWidth        : function() {return ZOOM_DIV.width;},
+    drawPositionBorder: function() {
+      //draw fretboard
+      FRETBOARD_CTX.clearRect(0,0, this.fretboardWidth(), this.fretboardHeight());
+
+      //draw position border
+      FRETBOARD_CTX.beginPath();
+      var yPos = (this.startingFret - 1) * this.fretHeight();
+      var height = this.positionSize * this.fretHeight();
+      FRETBOARD_CTX.rect(0, yPos, this.fretboardWidth(), height);
+      FRETBOARD_CTX.stroke();
+    },
     drawZoomedFretboard: function() {
       ZOOM_CTX.fillStyle = 'white';
       ZOOM_CTX.fillRect(0,0, this.zoomWidth(), this.zoomHeight());
@@ -165,7 +131,8 @@ var app  = new Vue({
         })
       }
     },
-    drawZoom: function() {
+    drawBoards: function() {
+      this.drawPositionBorder();
       this.drawZoomedFretboard();
       this.drawFingers();
     }
