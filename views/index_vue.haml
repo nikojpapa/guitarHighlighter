@@ -1,20 +1,42 @@
-%link{rel:'stylesheet', href:'bootstrap.min.css'}
+%link{rel:'stylesheet', href:'bootstrap-3.3.7-dist/css/bootstrap.min.css'}
 %link{rel:'stylesheet', href:'index.css'}
 
 %script{src:'teoria.js'}
 %script{src:'jquery-3.2.1.min.js'}
 %script{src:'vue.js'}
-%script{src:'bootstrap.min.js'}
+%script{src:'bootstrap-3.3.7-dist/js/bootstrap.min.js'}
 
 = haml :settings
 
 %div{:id=> "myApp"}
 
-  .container{:id=>"settingsPopover"}
-    %settings{:':starting-fret.sync'=>"startingFret", :':position-size.sync'=>"positionSize", :':use-strings.sync'=>"useStrings", :':open-strings.sync'=>"openStrings", :':chord-shapes.sync'=>"chordShapes", :':selected-chord.sync'=>"selectedChord"}
-    / %a.btn.btn-lg.btn-primary{:href=>"#", :role=>"button", :'data-html'=>"true", :'data-toggle'=> "popover", :title=> "Settings", :':data-content'=> "settingsContent"}Toggle Popover {{selectedChord}}
+  /   %settings{:':starting-fret.sync'=>"startingFret", :':position-size.sync'=>"positionSize", :':use-strings.sync'=>"useStrings", :':open-strings.sync'=>"openStrings", :':chord-shapes.sync'=>"chordShapes", :':selected-chord.sync'=>"selectedChord", :id=> 'settings'}
+  /   %a.btn.btn-lg.btn-primary{:href=>"#", :role=>"button", :'data-html'=>"true", :'data-toggle'=> "popover", :title=> "Settings", :':data-content'=> "settingsContent"}Toggle Popover {{selectedChord}}
 
   .container-fluid
+    #settingsDiv
+      #settingBtn.glyphicon.glyphicon-cog.col-sm-1{:'data-toggle'=>"collapse", :'data-target'=>"#settingsForm"}
+        / %span.glyphicon.glyphicon-cog
+      #settingsForm.col-sm-12
+        .form-group
+          %label{:for=>"startingFret"}Starting Fret:
+          %input{:type=>"number", :'v-model.number'=> "startingFret"}
+        .form-group
+          %label{:for=>"positionSize"}Position Size:
+          %input{:type=>"number", :'v-model.number'=> "positionSize"}
+        .form-group
+          %label{:for=>"openStrings"}Tuning:
+          %ul.list-group
+          %template{:id=> "openStrings", :'v-for'=> "stringNum in 6"}
+            %li.list-group-item{:':class'=> "{disabled: useStrings.indexOf(stringNum-1) === -1}"}
+              %label {{stringNum}}:
+              %input{:type=>"text", :'v-model.number'=> "openStrings[stringNum-1]"}
+              %input{:type=>"checkbox", :':value'=> "stringNum - 1", :'v-model'=> "useStrings"}
+        .form-group
+          %label{:for=>"chords"}Chords:
+          %template{:id=>"chords", :'v-for'=> "(strings, chordName) in chordShapes"}
+            %li{:'@click'=> "selectedChord = chordName"} {{chordName}}
+          %div Selected chord: {{selectedChord}}
     #firstCol.col-sm-3
       %canvas.fullSize{id:"fretboard"}
     #middleCol.col-sm-9

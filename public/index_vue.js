@@ -9,7 +9,10 @@ ZOOM_CTX              = null;
 STRING_SPACING_OFFSET = null;
 
 $(function() {
-  $('[data-toggle="popover"]').popover();
+  $('[data-toggle="popover"]').popover({
+    html: true,
+    content: $('#settings').html()
+  });
 })
 
 var app  = new Vue({
@@ -34,9 +37,9 @@ var app  = new Vue({
     selectedChord: 'C'
   },
   computed: {
-    // settingsContent: function() {
-    //   return $('#settingsContent').html();
-    // },
+    settingsContent: function() {
+      return $('#settings').html();
+    },
     numFrets: function() {
       return Number(this.startingFret) + Number(this.positionSize);
     },
