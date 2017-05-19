@@ -35,7 +35,10 @@ var app  = new Vue({
       teoria.chord('G').notes()
     ],
     selectedChord: 'all',
-    newChord: ''
+    newChord: '',
+    clickedX: null,
+    clickedY: null,
+    currentBorderY: 0
   },
   computed: {
     // settingsContent: function() {
@@ -86,6 +89,31 @@ var app  = new Vue({
     fretboardWidth   : function() {return FRETBOARD_DIV.width;},
     zoomHeight       : function() {return ZOOM_DIV.height;},
     zoomWidth        : function() {return ZOOM_DIV.width;},
+    mouseCoords      : function(event) {return getMousePos(FRETBOARD_DIV, event);},
+    borderClick: function(event) {
+      var mouseCoords    = this.mouseCoords(event);
+      var currentBorderY = this.currentBorderY;
+      var borderHeight   = this.borderHeight()
+      var clickedY       = mouseCoords.y;
+      var clickedX       = mouseCoords.x;
+      if (clickedY > currentBorderY && clickedY < currentBorderY + borderHeight) {
+        this.clickedX = mouseCoords.x;
+        this.clickedY = mouseCoords.y;
+      }
+    },
+    borderRelease: function(event) {
+      var currentY       = this.mouseCoords(event).y;
+      this.clickedX      = null;
+      this.clickedY      = null;
+      this.startingFret  = Math.round(currentY / this.fretHeight());
+    },
+    moveBorder: function(event) {
+      var clickedY       = this.clickedY;
+      if (clickedY !== null) {
+        var currentY       = this.mouseCoords(event).y;
+        this.startingFret  = currentY / this.fretHeight();
+      }
+    },
     chordToNotes: function(chordName) {
       return teoria.chord(chordName).notes();
     },
@@ -111,6 +139,7 @@ var app  = new Vue({
       var height = this.positionSize * this.fretHeight();
       FRETBOARD_CTX.rect(0, yPos, this.fretboardWidth(), height);
       FRETBOARD_CTX.stroke();
+      this.currentBorderY = yPos;
     },
     drawZoomedFretboard: function() {
       ZOOM_CTX.fillStyle = 'white';
@@ -159,7 +188,7 @@ var app  = new Vue({
     drawBoards: function() {
       this.drawPositionBorder();
       this.drawZoomedFretboard();
-      this.drawFingers();
+      if (this.clickedY === null) this.drawFingers();
     }
   }
 })
