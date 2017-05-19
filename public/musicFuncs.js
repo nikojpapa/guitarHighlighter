@@ -31,7 +31,7 @@ function generateFretboard(openStrings, numFrets) {
 
 function generateChordShapes(chordProgression, fretboard, startingFret, positionSize, stringsToUse) {
   chordShapes = {};
-  chordProgression.forEach(function(chord) {
+  chordProgression.forEach(function(chord, chordNameIndex) {
     fretRegion    = [];
     chordName     = chord.name;
     notesInChord  = chord.notes();
@@ -56,7 +56,14 @@ function generateChordShapes(chordProgression, fretboard, startingFret, position
       })
       fretRegion.push(stringRegion);
     })
-    chordShapes[chordName] = fretRegion;
+
+    var colorNames = Object.keys(Colors.names)
+    var chordColor = Colors.names[colorNames[(chordNameIndex * 7) % colorNames.length]];
+
+    chordShapes[chordName] = {
+      strings: fretRegion,
+      color: chordColor
+    }
   })
   return chordShapes;
 }

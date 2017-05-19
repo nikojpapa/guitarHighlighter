@@ -41,10 +41,10 @@
       %canvas.fullSize{id:"fretboard"}
     #middleCol.col-sm-9
       %ul.nav.nav-tabs
-        %li.active
+        %li{:'@click'=>"selectedChord = 'all'"}
           %a{:'data-toggle'=>"tab", :href=>"#allChords"}All Chords
         %template{:'v-for'=> "(strings, chordName) in chordShapes"}
-          %li
+          %li{:'@click'=>"selectedChord = chordName"}
             %a{:'data-toggle'=>"tab", :':href'=>"'#menu' + chordName"}{{chordName}}
       %canvas.fullSize{:id=>"zoom"}
 

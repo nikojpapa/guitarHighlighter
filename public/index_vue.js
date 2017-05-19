@@ -56,19 +56,21 @@ var app  = new Vue({
     ZOOM_DIV = $('#zoom')[0];
     ZOOM_CTX = ZOOM_DIV.getContext('2d');
     STRING_SPACING_OFFSET = ZOOM_DIV.width * 0.12;
+  },
+  beforeUpdate: function() {
     this.drawBoards();
   },
-  watch: {
-    startingFret: function() {
-      this.drawBoards();
-    },
-    positionSize: function() {
-      this.drawBoards();
-    },
-    selectedChord: function() {
-      this.drawBoards();
-    }
-  },
+  // watch: {
+  //   startingFret: function() {
+  //     this.drawBoards();
+  //   },
+  //   positionSize: function() {
+  //     this.drawBoards();
+  //   },
+  //   selectedChord: function() {
+  //     this.drawBoards();
+  //   }
+  // },
   methods: {
     fretHeight       : function() {return this.fretboardHeight() / FRET_DIVIDOR;},
     imgFretSize      : function() {return FRETBOARD_IMG.height / FRET_DIVIDOR;},
@@ -107,11 +109,12 @@ var app  = new Vue({
 
       var chordNameIndex = 0;
       for (var chordName in chordShapes) {
-        var colorNames = Object.keys(Colors.names)
+        ++chordNameIndex;
         var alpha      = 0.5;
         if (selectedChord === chordName) alpha = 1;
-        var chordColor = hex2rgba(Colors.names[colorNames[(chordNameIndex++ * 7) % colorNames.length]], alpha);
-        var strings = chordShapes[chordName];
+        else if (selectedChord !== 'all') continue;
+        var chordColor = hex2rgba(chordShapes[chordName].color, alpha);
+        var strings = chordShapes[chordName].strings;
         strings.forEach(function(noteNames, stringNum) {
           var xPos = stringNum * zoomStringSpacing + STRING_SPACING_OFFSET;
           noteNames.forEach(function(noteName, fretNum) {
