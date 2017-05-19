@@ -30,15 +30,19 @@ var app  = new Vue({
     ],
     useStrings: range(0,5,1),
     chordProgression: [
-      teoria.chord('C'),
-      teoria.chord('F'),
-      teoria.chord('G')
+      teoria.chord('C').notes(),
+      teoria.chord('F').notes(),
+      teoria.chord('G').notes()
     ],
-    selectedChord: 'C'
+    selectedChord: 'all',
+    newChord: ''
   },
   computed: {
-    settingsContent: function() {
-      return $('#settings').html();
+    // settingsContent: function() {
+    //   return $('#settings').html();
+    // },
+    tabWidthClass: function() {
+      return 'col-sm-' + Math.floor(12 / (Object.keys(this.chordShapes).length + 2))
     },
     numFrets: function() {
       return Number(this.startingFret) + Number(this.positionSize);
@@ -82,6 +86,21 @@ var app  = new Vue({
     fretboardWidth   : function() {return FRETBOARD_DIV.width;},
     zoomHeight       : function() {return ZOOM_DIV.height;},
     zoomWidth        : function() {return ZOOM_DIV.width;},
+    chordToNotes: function(chordName) {
+      return teoria.chord(chordName).notes();
+    },
+    createNewChord: function() {
+      var newChord = teoria.chord(this.newChord);
+      var newChordNotes = newChord.notes();
+      var newChordName = chordId(newChordNotes);
+      this.chordProgression.push(newChordNotes);
+      this.selectedChord = newChordName
+    },
+    removeChord: function(chordName, event) {
+      event.stopPropagation();
+      var chordIndex = this.chordProgression.indexOf(chordName);
+      this.chordProgression.splice(chordIndex,1);
+    },
     drawPositionBorder: function() {
       //draw fretboard
       FRETBOARD_CTX.clearRect(0,0, this.fretboardWidth(), this.fretboardHeight());

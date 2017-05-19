@@ -31,14 +31,14 @@ function generateFretboard(openStrings, numFrets) {
 
 function generateChordShapes(chordProgression, fretboard, startingFret, positionSize, stringsToUse) {
   chordShapes = {};
-  chordProgression.forEach(function(chord, chordNameIndex) {
-    fretRegion    = [];
-    chordName     = chord.name;
-    notesInChord  = chord.notes();
+  chordProgression.forEach(function(notesInChord, chordNameIndex) {
+    var fretRegion    = [];
+    var chordName     = chordId(notesInChord);
+    // notesInChord  = chord.notes();
 
-    chordToNumTranslator  = {};
-    noteNamesInChord      = [];
-    noteNumsInChord       = [];
+    var chordToNumTranslator  = {};
+    var noteNamesInChord      = [];
+    var noteNumsInChord       = [];
     notesInChord.forEach(function(note) {
       noteName = note.name();
       noteNum = noteToNumber(note);
@@ -48,8 +48,8 @@ function generateChordShapes(chordProgression, fretboard, startingFret, position
     });
 
     fretboard.forEach(function(string, stringNum) {
-      stringRegion = [];
-      mapFrets = string.slice(startingFret, startingFret+positionSize);
+      var stringRegion = [];
+      var mapFrets = string.slice(startingFret, startingFret+positionSize);
       mapFrets.forEach(function(fret) {
         if (stringsToUse.indexOf(stringNum) > -1 && noteNumsInChord.indexOf(fret) > -1) stringRegion.push(chordToNumTranslator[fret])
         else stringRegion.push('x');

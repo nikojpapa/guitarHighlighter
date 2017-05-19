@@ -62,6 +62,16 @@ function hex2rgba(hexa, alpha){  // modified from http://stackoverflow.com/a/287
   return 'rgba('+r+', '+g+', '+b+', '+a+')';
 }
 
+function chordId(notesInChord) {
+  var chordName = '';
+  notesInChord.forEach(function(note, index) {
+    chordName += note.toString();
+    if (index !== notesInChord.length - 1) chordName += ',';
+  })
+  return chordName;
+  // return chordName.replace(/#/g, 's');
+}
+
 function range(start, end, step) {  //taken from http://stackoverflow.com/a/3895521/3869199
   var range = [];
   var typeofStart = typeof start;

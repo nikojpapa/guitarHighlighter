@@ -7,9 +7,6 @@
   box-shadow: 2px 2px 4px;
   border-radius: 7px;
 }
-/*#settingBtn {
-  height: ;
-}*/
 #fretboard {
   background-image: url(images/blank_fretboard.png);
   background-size: 100% 100%;
@@ -24,6 +21,12 @@
   width: 100%;
   height: 100%;
 }
-input[type="text"]:disabled {
-  background: #dddddd;
+span.glyphicon.glyphicon-remove{
+  color: darkgrey;
 }
+span.glyphicon.glyphicon-remove:hover{
+  background-color: darkslateblue;
+}
+/*input[type="text"]:disabled {
+  background: #dddddd;
+}*/
