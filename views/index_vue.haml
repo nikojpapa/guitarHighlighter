@@ -17,7 +17,7 @@
     #settingsDiv
       #settingBtn.glyphicon.glyphicon-cog.col-sm-1{:'data-toggle'=>"collapse", :'data-target'=>"#settingsForm"}
         / %span.glyphicon.glyphicon-cog
-      #settingsForm.col-sm-12
+      #settingsForm.collapse.col-sm-12
         .form-group
           %label{:for=>"startingFret"}Starting Fret:
           %input{:type=>"number", :'v-model.number'=> "startingFret"}
@@ -40,6 +40,12 @@
     #firstCol.col-sm-3
       %canvas.fullSize{id:"fretboard"}
     #middleCol.col-sm-9
+      %ul.nav.nav-tabs
+        %li.active
+          %a{:'data-toggle'=>"tab", :href=>"#allChords"}All Chords
+        %template{:'v-for'=> "(strings, chordName) in chordShapes"}
+          %li
+            %a{:'data-toggle'=>"tab", :':href'=>"'#menu' + chordName"}{{chordName}}
       %canvas.fullSize{:id=>"zoom"}
 
 %script{src:'utils.js'}
