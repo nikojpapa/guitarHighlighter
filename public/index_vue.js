@@ -147,14 +147,10 @@ var app  = new Vue({
       var moveType = this.moveType;
       if (moveType === 'drag') this.startingFret  = Math.round(currentY / this.fretHeight());
       else if (moveType === 'resizeTop') {
-        var newStartingFret = Math.round((currentY - 1) / this.fretHeight());
+        var newStartingFret = Math.round((currentY - 1) / this.fretHeight() + 1);
         this.resizeTop(newStartingFret);
       } else if (moveType === 'resizeBottom') {
-        var diffY = currentY - oldY;
-        var rect = FRETBOARD_DIV.getBoundingClientRect(), // abs. size of element
-            scaleX = FRETBOARD_DIV.width / rect.width,    // relationship bitmap vs. element for X
-            scaleY = FRETBOARD_DIV.height / rect.height;  // relationship bitmap vs. element for Y
-        this.positionSize = Math.round(this.positionSize + diffY * scaleY);
+        this.positionSize = Math.round(currentY / this.fretHeight() + 1 - this.startingFret);
       }
       this.clickedX = null;
       this.clickedY = null;
@@ -172,17 +168,10 @@ var app  = new Vue({
       if (moveType === 'drag') {
         this.startingFret = currentY / this.fretHeight();  //drag border
       } else if (moveType === 'resizeTop') {
-        var newStartingFret = (currentY - 1) / this.fretHeight();
+        var newStartingFret = currentY / this.fretHeight() + 1;
         this.resizeTop(newStartingFret);
       } else if (moveType === 'resizeBottom') {
-        var diffY = currentY - oldY;
-        var rect = FRETBOARD_DIV.getBoundingClientRect(), // abs. size of element
-            scaleX = FRETBOARD_DIV.width / rect.width,    // relationship bitmap vs. element for X
-            scaleY = FRETBOARD_DIV.height / rect.height;  // relationship bitmap vs. element for Y
-        console.log(currentY);
-        console.log(oldY);
-        this.positionSize = this.positionSize + diffY * scaleY;
-        this.oldY = currentY;
+        this.positionSize = currentY / this.fretHeight() + 1 - this.startingFret;
       }
 
       if (this.withinBorder(currentY, currentX)) {
