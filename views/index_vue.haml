@@ -19,9 +19,6 @@
         / %span.glyphicon.glyphicon-cog
       #settingsForm.collapse.col-sm-12
         .form-group
-          %label{:for=>"positionSize"}Position Size:
-          %input{:type=>"number", :'v-model.number'=> "positionSize"}
-        .form-group
           %label{:for=>"openStrings"}Tuning:
           %ul.list-group
           %template{:id=> "openStrings", :'v-for'=> "stringNum in 6"}

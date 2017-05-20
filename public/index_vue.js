@@ -37,8 +37,11 @@ var app  = new Vue({
     ],
     selectedChord: 'all',
     newChord: '',
-    clickedX: null,
+    clientY: null,
+    clientX: null,
     clickedY: null,
+    clickedX: null,
+    moveType: null,
     currentBorderY: 0,
     fretboardPointer: {}
   },
@@ -87,43 +90,108 @@ var app  = new Vue({
     currentX: function(event) {
       return this.mouseCoords(event).x;
     },
-    withinBorder     : function(yPos, xPos) {
+    resizeTop: function(newStartingFret) {
+      var oldStartingFret = this.startingFret;
+      var diffStartingFret = newStartingFret - oldStartingFret;
+      this.startingFret = newStartingFret;
+      this.positionSize = this.positionSize - diffStartingFret;
+    },
+    // resizeBottom: function(diffY) {
+    //   console.log(diffY);
+    //   this.positionSize = this.positionSize + diffY;
+    // },
+    withinBorder: function(yPos, xPos) {
       var currentBorderY = this.currentBorderY;
       var borderHeight   = this.borderHeight();
       return yPos !== null && yPos > currentBorderY+BORDER_EDGE_SIZE && yPos < currentBorderY+borderHeight-BORDER_EDGE_SIZE;
     },
-    withinBorderEdge: function(yPos, xPos) {
+    withinTopBorderEdge: function(yPos, xPos) {
       var currentBorderY = this.currentBorderY;
       var borderHeight   = this.borderHeight();
       var borderEndY     = currentBorderY+borderHeight;
-      return yPos !== null && ((yPos >= currentBorderY-BORDER_EDGE_SIZE && yPos <= currentBorderY+BORDER_EDGE_SIZE) || (yPos >= borderEndY-BORDER_EDGE_SIZE && yPos <= borderEndY+BORDER_EDGE_SIZE))
+      return yPos !== null && (yPos >= currentBorderY-BORDER_EDGE_SIZE && yPos <= currentBorderY+BORDER_EDGE_SIZE)
+    },
+    withinBottomBorderEdge: function(yPos, xPos) {
+      var currentBorderY = this.currentBorderY;
+      var borderHeight   = this.borderHeight();
+      var borderEndY     = currentBorderY+borderHeight;
+      return yPos !== null && (yPos >= borderEndY-BORDER_EDGE_SIZE && yPos <= borderEndY+BORDER_EDGE_SIZE)
     },
     borderClick: function(event) {
       var currentBorderY = this.currentBorderY;
-      var borderHeight   = this.imgBorderHeight()
+      var borderHeight   = this.imgBorderHeight();
+      var clientY        = event.clientY;
+      var clientX        = event.clientX;
       var clickedY       = this.currentY(event);
       var clickedX       = this.currentX(event);
       if (this.withinBorder(clickedY, clickedX)) {
         this.clickedY = clickedY;
         this.clickedX = clickedX;
+        this.moveType = 'drag';
+      } else if (this.withinTopBorderEdge(clickedY, clickedX)) {
+        this.clickedY = clickedY;
+        this.clickedX = clickedX;
+        this.moveType = 'resizeTop';
+      } else if (this.withinBottomBorderEdge(clickedY, clickedX)) {
+        this.clientY  = clientY;
+        this.clientX  = clientX;
+        this.clickedY = clickedY;
+        this.clickedX = clickedX;
+        this.oldY     = clickedY;
+        this.moveType = 'resizeBottom';
       }
     },
     borderRelease: function(event) {
-      var currentY       = this.currentY(event);
-      this.clickedX      = null;
-      this.clickedY      = null;
-      this.startingFret  = Math.round(currentY / this.fretHeight());
+      var currentY = this.currentY(event);
+      var oldY     = this.oldY;
+      var moveType = this.moveType;
+      if (moveType === 'drag') this.startingFret  = Math.round(currentY / this.fretHeight());
+      else if (moveType === 'resizeTop') {
+        var newStartingFret = Math.round((currentY - 1) / this.fretHeight());
+        this.resizeTop(newStartingFret);
+      } else if (moveType === 'resizeBottom') {
+        var diffY = currentY - oldY;
+        var rect = FRETBOARD_DIV.getBoundingClientRect(), // abs. size of element
+            scaleX = FRETBOARD_DIV.width / rect.width,    // relationship bitmap vs. element for X
+            scaleY = FRETBOARD_DIV.height / rect.height;  // relationship bitmap vs. element for Y
+        this.positionSize = Math.round(this.positionSize + diffY * scaleY);
+      }
+      this.clickedX = null;
+      this.clickedY = null;
+      this.oldY     = null;
+      this.moveType = null;
     },
     moveBorder: function(event) {
-      var currentY    = this.currentY(event);
-      var currentX    = this.currentX(event);
-      var clickedY    = this.clickedY;
-      if (clickedY !== null) this.startingFret  = currentY / this.fretHeight();  //drag border
+      var clientY  = event.clientY;
+      var clientX  = event.clientX;
+      var currentY = this.currentY(event);
+      var currentX = this.currentX(event);
+      var oldY     = this.oldY;
+      var clickedY = this.clickedY;
+      var moveType = this.moveType;
+      if (moveType === 'drag') {
+        this.startingFret = currentY / this.fretHeight();  //drag border
+      } else if (moveType === 'resizeTop') {
+        var newStartingFret = (currentY - 1) / this.fretHeight();
+        this.resizeTop(newStartingFret);
+      } else if (moveType === 'resizeBottom') {
+        var diffY = currentY - oldY;
+        var rect = FRETBOARD_DIV.getBoundingClientRect(), // abs. size of element
+            scaleX = FRETBOARD_DIV.width / rect.width,    // relationship bitmap vs. element for X
+            scaleY = FRETBOARD_DIV.height / rect.height;  // relationship bitmap vs. element for Y
+        console.log(currentY);
+        console.log(oldY);
+        this.positionSize = this.positionSize + diffY * scaleY;
+        this.oldY = currentY;
+      }
+
       if (this.withinBorder(currentY, currentX)) {
-        console.log(clickedY);
-        if (clickedY != null) FRETBOARD_DIV.style.cursor='-webkit-grabbing';
-        else FRETBOARD_DIV.style.cursor='pointer';  //grabbable cursor
-      } else if (this.withinBorderEdge(currentY, currentX)) {
+        if (moveType === 'drag') {
+          FRETBOARD_DIV.style.cursor='-webkit-grabbing';
+        } else {
+          FRETBOARD_DIV.style.cursor='pointer';  //grabbable cursor
+        }
+      } else if (this.withinTopBorderEdge(currentY, currentX) || this.withinBottomBorderEdge(currentY, currentX)) {
         FRETBOARD_DIV.style.cursor='ns-resize';
       } else {
         FRETBOARD_DIV.style.cursor = 'auto';
