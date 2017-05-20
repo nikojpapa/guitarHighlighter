@@ -1,6 +1,7 @@
-FRETBOARD_IMG     = new Image();
-FRETBOARD_IMG.src = 'images/blank_fretboard.png';
-FRET_DIVIDOR      = 12.2;
+FRETBOARD_IMG       = new Image();
+FRETBOARD_IMG.src   = 'images/blank_fretboard.png';
+FRET_DIVIDOR        = 12.2;
+BORDER_EDGE_SIZE    = 1;
 
 FRETBOARD_DIV         = null;
 FRETBOARD_CTX         = null;
@@ -38,12 +39,10 @@ var app  = new Vue({
     newChord: '',
     clickedX: null,
     clickedY: null,
-    currentBorderY: 0
+    currentBorderY: 0,
+    fretboardPointer: {}
   },
   computed: {
-    // settingsContent: function() {
-    //   return $('#settings').html();
-    // },
     tabWidthClass: function() {
       return 'col-sm-' + Math.floor(12 / (Object.keys(this.chordShapes).length + 2))
     },
@@ -67,51 +66,67 @@ var app  = new Vue({
   beforeUpdate: function() {
     this.drawBoards();
   },
-  // watch: {
-  //   startingFret: function() {
-  //     this.drawBoards();
-  //   },
-  //   positionSize: function() {
-  //     this.drawBoards();
-  //   },
-  //   selectedChord: function() {
-  //     this.drawBoards();
-  //   }
-  // },
   methods: {
     fretHeight       : function() {return this.fretboardHeight() / FRET_DIVIDOR;},
     imgFretSize      : function() {return FRETBOARD_IMG.height / FRET_DIVIDOR;},
+    borderHeight     : function() {return this.positionSize * this.fretHeight()},
+    imgBorderHeight  : function() {return this.positionSize * this.imgFretSize();},
     zoomStringSpacing: function() {return (ZOOM_DIV.width - STRING_SPACING_OFFSET) / (this.openStrings.length - 1);},
     zoomFretSize     : function() {return ZOOM_DIV.height / this.positionSize;},
     startingFretPx   : function() {return (this.startingFret - 1) * this.imgFretSize();},
-    borderHeight     : function() {return this.positionSize * this.imgFretSize();},
     fretboardHeight  : function() {return FRETBOARD_DIV.height;},
     fretboardWidth   : function() {return FRETBOARD_DIV.width;},
     zoomHeight       : function() {return ZOOM_DIV.height;},
     zoomWidth        : function() {return ZOOM_DIV.width;},
-    mouseCoords      : function(event) {return getMousePos(FRETBOARD_DIV, event);},
-    borderClick: function(event) {
-      var mouseCoords    = this.mouseCoords(event);
+    mouseCoords: function(event) {
+      return getMousePos(FRETBOARD_DIV, event);
+    },
+    currentY: function(event) {
+      return this.mouseCoords(event).y;
+    },
+    currentX: function(event) {
+      return this.mouseCoords(event).x;
+    },
+    withinBorder     : function(yPos, xPos) {
       var currentBorderY = this.currentBorderY;
-      var borderHeight   = this.borderHeight()
-      var clickedY       = mouseCoords.y;
-      var clickedX       = mouseCoords.x;
-      if (clickedY > currentBorderY && clickedY < currentBorderY + borderHeight) {
-        this.clickedX = mouseCoords.x;
-        this.clickedY = mouseCoords.y;
+      var borderHeight   = this.borderHeight();
+      return yPos !== null && yPos > currentBorderY+BORDER_EDGE_SIZE && yPos < currentBorderY+borderHeight-BORDER_EDGE_SIZE;
+    },
+    withinBorderEdge: function(yPos, xPos) {
+      var currentBorderY = this.currentBorderY;
+      var borderHeight   = this.borderHeight();
+      var borderEndY     = currentBorderY+borderHeight;
+      return yPos !== null && ((yPos >= currentBorderY-BORDER_EDGE_SIZE && yPos <= currentBorderY+BORDER_EDGE_SIZE) || (yPos >= borderEndY-BORDER_EDGE_SIZE && yPos <= borderEndY+BORDER_EDGE_SIZE))
+    },
+    borderClick: function(event) {
+      var currentBorderY = this.currentBorderY;
+      var borderHeight   = this.imgBorderHeight()
+      var clickedY       = this.currentY(event);
+      var clickedX       = this.currentX(event);
+      if (this.withinBorder(clickedY, clickedX)) {
+        this.clickedY = clickedY;
+        this.clickedX = clickedX;
       }
     },
     borderRelease: function(event) {
-      var currentY       = this.mouseCoords(event).y;
+      var currentY       = this.currentY(event);
       this.clickedX      = null;
       this.clickedY      = null;
       this.startingFret  = Math.round(currentY / this.fretHeight());
     },
     moveBorder: function(event) {
-      var clickedY       = this.clickedY;
-      if (clickedY !== null) {
-        var currentY       = this.mouseCoords(event).y;
-        this.startingFret  = currentY / this.fretHeight();
+      var currentY    = this.currentY(event);
+      var currentX    = this.currentX(event);
+      var clickedY    = this.clickedY;
+      if (clickedY !== null) this.startingFret  = currentY / this.fretHeight();  //drag border
+      if (this.withinBorder(currentY, currentX)) {
+        console.log(clickedY);
+        if (clickedY != null) FRETBOARD_DIV.style.cursor='-webkit-grabbing';
+        else FRETBOARD_DIV.style.cursor='pointer';  //grabbable cursor
+      } else if (this.withinBorderEdge(currentY, currentX)) {
+        FRETBOARD_DIV.style.cursor='ns-resize';
+      } else {
+        FRETBOARD_DIV.style.cursor = 'auto';
       }
     },
     chordToNotes: function(chordName) {
@@ -144,7 +159,7 @@ var app  = new Vue({
     drawZoomedFretboard: function() {
       ZOOM_CTX.fillStyle = 'white';
       ZOOM_CTX.fillRect(0,0, this.zoomWidth(), this.zoomHeight());
-      ZOOM_CTX.drawImage(FRETBOARD_IMG, 0, this.startingFretPx(), FRETBOARD_IMG.width, this.borderHeight(), 0, 0, this.zoomWidth(), this.zoomHeight());
+      ZOOM_CTX.drawImage(FRETBOARD_IMG, 0, this.startingFretPx(), FRETBOARD_IMG.width, this.imgBorderHeight(), 0, 0, this.zoomWidth(), this.zoomHeight());
     },
     drawFingers: function() {
       var selectedChord       = this.selectedChord;
