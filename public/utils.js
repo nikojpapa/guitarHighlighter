@@ -72,16 +72,56 @@ function chordId(notesInChord) {
   // return chordName.replace(/#/g, 's');
 }
 
+function getScale(canvas) {
+  var rect = canvas.getBoundingClientRect(), // abs. size of element
+      scaleY = canvas.height / rect.height,  // relationship bitmap vs. element for Y
+      scaleX = canvas.width / rect.width;    // relationship bitmap vs. element for X
+
+  return {
+    y: scaleY,
+    x: scaleX
+  }
+}
+
 function getMousePos(canvas, evt) {  //Taken from http://stackoverflow.com/a/17130415/3869199
   var rect = canvas.getBoundingClientRect(), // abs. size of element
-      scaleX = canvas.width / rect.width,    // relationship bitmap vs. element for X
-      scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for Y
+      scale = getScale(canvas),
+      scaleX = scale.x,
+      scaleY = scale.y
 
   return {
     x: (evt.clientX - rect.left) * scaleX,   // scale mouse coordinates after they have
     y: (evt.clientY - rect.top) * scaleY     // been adjusted to be relative to element
   }
 }
+
+function drawRotated(degrees){
+    // if(ZOOM_DIV) document.body.removeChild("canvas");
+
+    // ZOOM_DIV = document.createElement("canvas");
+    // ZOOM_CTX = ZOOM_DIV.getContext("2d");
+    // ZOOM_DIV.style.width="20%";
+
+    // if(degrees == 90 || degrees == 270) {
+    //     ZOOM_DIV.width = image.height;
+    //     ZOOM_DIV.height = image.width;
+    // } else {
+    //     ZOOM_DIV.width = image.width;
+    //     ZOOM_DIV.height = image.height;
+    // }
+
+    ZOOM_CTX.clearRect(0,0,ZOOM_DIV.width,ZOOM_DIV.height);
+    if(degrees == 90 || degrees == 270) {
+        ZOOM_CTX.translate(ZOOM_CTX.height/2,ZOOM_CTX.width/2);
+    } else {
+        ZOOM_CTX.translate(ZOOM_CTX.width/2,ZOOM_CTX.height/2);
+   }
+    ZOOM_CTX.rotate(degrees*Math.PI/180);
+    ZOOM_CTX.drawImage(ZOOM_CTX,-ZOOM_CTX.width/2,-ZOOM_CTX.height/2);
+
+    // document.body.appendChild(ZOOM_DIV);
+}
+
 
 function range(start, end, step) {  //taken from http://stackoverflow.com/a/3895521/3869199
   var range = [];
