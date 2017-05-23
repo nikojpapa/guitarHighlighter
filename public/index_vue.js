@@ -1,5 +1,7 @@
 FRETBOARD_IMG       = new Image();
-FRETBOARD_IMG.src   = 'images/blank_fretboard_vertical.png';
+FRETBOARD_IMG_HORIZ = new Image();
+FRETBOARD_IMG.src         = 'images/blank_fretboard_vertical.png';
+FRETBOARD_IMG_HORIZ.src   = 'images/blank_fretboard_horizontal.png';
 
 FRETBOARD_DIV           = null;
 FRETBOARD_CTX           = null;
@@ -95,33 +97,35 @@ var app  = new Vue({
     }
   },
   methods: {
-    imgHeight            : function() {return FRETBOARD_IMG.height;},
-    imgWidth             : function() {return FRETBOARD_IMG.width;},
-    imgTOffset           : function() {return this.imgHeight() * 0.03;},
-    imgBOffset           : function() {return this.imgHeight() * 0.01;},
-    imgLOffset           : function() {return this.imgWidth()  * 0.225;},
-    imgROffset           : function() {return this.imgWidth()  * -0.05;},
-    imgFretSize          : function() {return (this.imgHeight() - this.imgTOffset() - this.imgBOffset()) / NUM_FRETS;},
-    imgStringSpacing     : function() {return (this.imgWidth() - this.imgLOffset() - this.imgROffset()) / this.numStrings - 1},
-    imgBorderHeight      : function() {return this.positionSize * this.imgFretSize();},
+    imgHeight            : function(orientation) {if (orientation==='vertical') return FRETBOARD_IMG.height; else if (orientation==='horizontal') return FRETBOARD_IMG_HORIZ.height;},
+    imgWidth             : function(orientation) {if (orientation==='vertical') return FRETBOARD_IMG.width; else if (orientation==='horizontal') return FRETBOARD_IMG_HORIZ.width;},
+    imgTOffset           : function(orientation) {return this.imgHeight(orientation) * 0.03;},
+    imgBOffset           : function(orientation) {return this.imgHeight(orientation) * 0.01;},
+    imgLOffset           : function(orientation) {return this.imgWidth(orientation)  * 0.035;},
+    imgROffset           : function(orientation) {return this.imgWidth(orientation)  * 0.125;},
+    imgFretSize          : function(orientation) {return (this.imgHeight(orientation) - this.imgTOffset(orientation) - this.imgBOffset(orientation)) / NUM_FRETS;},
+    imgStringSpacing     : function(orientation) {return (this.imgWidth(orientation) - this.imgLOffset(orientation) - this.imgROffset(orientation)) / this.numStrings - 1},
+    imgBorderHeight      : function(orientation) {return this.positionSize * this.imgFretSize(orientation);},
     fretboardHeight      : function() {return FRETBOARD_DIV.height;},
     fretboardWidth       : function() {return FRETBOARD_DIV.width;},
     fretboardScale       : function() {return getScale(FRETBOARD_DIV);},
-    fretboardTOffset     : function() {return this.imgTOffset() * this.fretboardScale().y;},
-    fretboardBOffset     : function() {return this.imgBOffset() * this.fretboardScale().y;},
+    fretboardTOffset     : function() {return this.imgTOffset('vertical') * this.fretboardScale('vertical').y;},
+    fretboardBOffset     : function() {return this.imgBOffset('vertical') * this.fretboardScale('vertical').y;},
     fretboardFretSize  : function() {return (this.fretboardHeight() - this.fretboardTOffset() - this.fretboardBOffset()) / NUM_FRETS;},
     fretboardBorderHeight: function() {return this.positionSize * this.fretboardFretSize()},
     zoomHeight           : function() {return ZOOM_DIV.height;},
     zoomWidth            : function() {return ZOOM_DIV.width;},
     zoomScale            : function() {
       return {
-        y: this.zoomHeight() / this.imgBorderHeight(),
-        x: this.zoomWidth() / FRETBOARD_IMG.width
+        y: this.zoomHeight() / this.imgWidth('vertical'),
+        x: this.zoomWidth() / this.imgBorderHeight('vertical')
       }
     },
-    zoomFretSize         : function() {return this.imgFretSize() * this.zoomScale().y;},
-    zoomLOffset          : function() {return this.imgLOffset() * this.zoomScale().x;},
-    zoomStringSpacing    : function() {return this.imgStringSpacing() * this.zoomScale().x;},
+    zoomFretSize         : function() {return this.imgFretSize('vertical') * this.zoomScale().x;},
+    // zoomLOffset          : function() {return this.imgTOffset('vertical') * this.zoomScale().x;},
+    zoomTOffset          : function() {return this.imgROffset('vertical') * this.zoomScale().y;},
+    // zoomBOffset          : function() {return this.imgLOffset('vertical') * this.zoomScale().y;},
+    zoomStringSpacing    : function() {return this.imgStringSpacing('vertical') * this.zoomScale().y;},
     // startingFretPx      : function() {return (this.startingFret - 1) * this.imgFretSize();},
     mouseCoords: function(event) {
       return getMousePos(FRETBOARD_DIV, event);
@@ -247,7 +251,7 @@ var app  = new Vue({
       this.currentBorderY = yPos;
     },
     drawZoomedFretboard: function() {
-      this.startingFretPx = (this.startingFret - 1) * this.imgFretSize() + this.imgTOffset();
+      this.startingFretPx = (this.startingFret - 1) * this.imgFretSize('vertical') + this.imgTOffset('vertical');
       // this.zoomScale          = {
       //   y: this.zoomHeight() / this.imgBorderHeight(),
       //   x: this.zoomWidth() / FRETBOARD_IMG.width
@@ -256,16 +260,16 @@ var app  = new Vue({
       // this.zoomLOffset        = this.imgLOffset() * this.zoomScale.x;
       // this.zoomStringSpacing  = this.imgStringSpacing() * this.zoomScale.x;
 
-      ZOOM_CTX.fillStyle = 'white';
+      // ZOOM_CTX.fillStyle = 'white';
       ZOOM_CTX.clearRect(0,0, this.zoomWidth(), this.zoomHeight());
-      ZOOM_CTX.drawImage(FRETBOARD_IMG, 0, this.startingFretPx, FRETBOARD_IMG.width, this.imgBorderHeight(), 0, 0, this.zoomWidth(), this.zoomHeight());
+      ZOOM_CTX.drawImage(FRETBOARD_IMG_HORIZ, this.startingFretPx, 0, this.imgBorderHeight('vertical'), FRETBOARD_IMG_HORIZ.height, 0, 0, this.zoomWidth(), this.zoomHeight());  //x and y are reversed to draw horizontally
     },
     drawFingers: function() {
       var numChords           = this.numChords,
           selectedChord       = this.selectedChord,
           zoomWidth           = this.zoomWidth(),
           zoomHeight          = this.zoomHeight(),
-          zoomLOffset         = this.zoomLOffset(),
+          zoomTOffset         = this.zoomTOffset(),
           zoomStringSpacing   = this.zoomStringSpacing(),
           zoomFretSize        = this.zoomFretSize(),
           chordShapes         = this.chordShapes,
@@ -280,13 +284,11 @@ var app  = new Vue({
         var chordColor = hex2rgba(chordShapes[chordName].color, alpha);
         var strings = chordShapes[chordName].strings;
         strings.forEach(function(noteNames, stringNum) {
-          console.log(stringNum);
-          var xPos = stringNum * zoomStringSpacing + zoomLOffset;
-          console.log(xPos);
+          var yPos = (5-stringNum) * zoomStringSpacing + zoomTOffset;
           noteNames.forEach(function(noteName, fretNum) {
             if (noteName != 'x') {
-              var yPos = fretNum * zoomFretSize + chordNameIndex * chordOffset;
-              var radius = chordOffset;
+              var xPos = fretNum * zoomFretSize + chordNameIndex * chordOffset;
+              var radius = zoomStringSpacing / 2;
 
               var can2 = document.createElement('canvas');
               can2.width = zoomWidth;
