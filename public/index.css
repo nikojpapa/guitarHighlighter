@@ -12,6 +12,10 @@
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
+#zoom,#newChordTab {
+  background-color: #cdaa7d;
+  border-radius: 15px;
+}
 #positionBorder {
   border: 1px solid black;
   float: left;
@@ -22,14 +26,22 @@
   height: 100%;
 }
 body {
-  background-color: #cdaa7d;
+  background-color: #deb887;
 }
 span.glyphicon.glyphicon-remove{
-  color: darkgrey;
+  color: #8b6914;
 }
 span.glyphicon.glyphicon-remove:hover{
-  background-color: darkslateblue;
+  background-color: #cdaa7d;
+  border-radius: 3px;
 }
-/*input[type="text"]:disabled {
-  background: #dddddd;
-}*/
+.nav>li>a:hover {
+  background-color: #fff8dc !important;
+}
+.nav-tabs>li.active>a {
+  background-color: #cdaa7d !important;
+  border-color: #cdaa7d !important;
+}
+.nav-tabs.nav-justified>li>a {
+  border-bottom: none;
+}
