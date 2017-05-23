@@ -12,6 +12,20 @@ function noteToNumber(note) {
   return (base + accidental_offset) % 6
 }
 
+function parseNoteString(noteString) {
+  return capitalizeFirstLetter(noteString.slice(0,-1));
+}
+
+function chordId(notesInChord) {
+  var chordName = '';
+  notesInChord.forEach(function(note, index) {
+    chordName += note.toString();
+    if (index !== notesInChord.length - 1) chordName += ',';
+  })
+  return chordName;
+  // return chordName.replace(/#/g, 's');
+}
+
 function generateFretboard(openStrings, numFrets) {
   fretboard = [];
   openStrings.forEach(function(openStringNote) {
@@ -40,7 +54,7 @@ function generateChordShapes(chordProgression, fretboard, startingFret, position
     var noteNamesInChord      = [];
     var noteNumsInChord       = [];
     notesInChord.forEach(function(note) {
-      noteName = note.name();
+      noteName = note.toString();
       noteNum = noteToNumber(note);
       noteNamesInChord.push(noteName);
       noteNumsInChord.push(noteNum);

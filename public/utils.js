@@ -1,3 +1,7 @@
+function capitalizeFirstLetter(string) {  //taken from https://stackoverflow.com/a/1026087/3869199
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 //Colors class taken from http://stackoverflow.com/a/10014969/3869199
 Colors = {};
 Colors.names = {
@@ -60,16 +64,6 @@ function hex2rgba(hexa, alpha){  // modified from http://stackoverflow.com/a/287
       b = parseInt(hexa.slice(5,7), 16);
       a = alpha;
   return 'rgba('+r+', '+g+', '+b+', '+a+')';
-}
-
-function chordId(notesInChord) {
-  var chordName = '';
-  notesInChord.forEach(function(note, index) {
-    chordName += note.toString();
-    if (index !== notesInChord.length - 1) chordName += ',';
-  })
-  return chordName;
-  // return chordName.replace(/#/g, 's');
 }
 
 function getScale(canvas) {

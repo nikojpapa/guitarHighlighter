@@ -97,6 +97,17 @@ var app  = new Vue({
     }
   },
   methods: {
+    displayNote          : function(noteString) {
+      return capitalizeFirstLetter(noteString.slice(0,-1));
+    },
+    displayChord         : function(chordName) {
+      var self = this,
+          noteNames = [];
+      chordName.split(',').forEach(function(noteName) {
+        noteNames.push(self.displayNote(noteName));
+      })
+      return noteNames.join(',');
+    },
     imgHeight            : function(orientation) {if (orientation==='vertical') return FRETBOARD_IMG.height; else if (orientation==='horizontal') return FRETBOARD_IMG_HORIZ.height;},
     imgWidth             : function(orientation) {if (orientation==='vertical') return FRETBOARD_IMG.width; else if (orientation==='horizontal') return FRETBOARD_IMG_HORIZ.width;},
     imgTOffset           : function(orientation) {return this.imgHeight(orientation) * 0.03;},
@@ -111,7 +122,7 @@ var app  = new Vue({
     fretboardScale       : function() {return getScale(FRETBOARD_DIV);},
     fretboardTOffset     : function() {return this.imgTOffset('vertical') * this.fretboardScale('vertical').y;},
     fretboardBOffset     : function() {return this.imgBOffset('vertical') * this.fretboardScale('vertical').y;},
-    fretboardFretSize  : function() {return (this.fretboardHeight() - this.fretboardTOffset() - this.fretboardBOffset()) / NUM_FRETS;},
+    fretboardFretSize    : function() {return (this.fretboardHeight() - this.fretboardTOffset() - this.fretboardBOffset()) / NUM_FRETS;},
     fretboardBorderHeight: function() {return this.positionSize * this.fretboardFretSize()},
     zoomHeight           : function() {return ZOOM_DIV.height;},
     zoomWidth            : function() {return ZOOM_DIV.width;},
@@ -233,9 +244,8 @@ var app  = new Vue({
       this.chordProgression.push(newChordNotes);
       this.selectedChord = newChordName
     },
-    removeChord: function(chordName, event) {
+    removeChord: function(chordIndex, event) {
       event.stopPropagation();
-      var chordIndex = this.chordProgression.indexOf(chordName);
       this.chordProgression.splice(chordIndex,1);
     },
     drawPositionBorder: function() {
@@ -264,8 +274,9 @@ var app  = new Vue({
       ZOOM_CTX.clearRect(0,0, this.zoomWidth(), this.zoomHeight());
       ZOOM_CTX.drawImage(FRETBOARD_IMG_HORIZ, this.startingFretPx, 0, this.imgBorderHeight('vertical'), FRETBOARD_IMG_HORIZ.height, 0, 0, this.zoomWidth(), this.zoomHeight());  //x and y are reversed to draw horizontally
     },
-    drawFingers: function() {
-      var numChords           = this.numChords,
+    drawFingers: function(mark) {
+      var self                = this,
+          numChords           = this.numChords,
           selectedChord       = this.selectedChord,
           zoomWidth           = this.zoomWidth(),
           zoomHeight          = this.zoomHeight(),
@@ -288,18 +299,22 @@ var app  = new Vue({
           noteNames.forEach(function(noteName, fretNum) {
             if (noteName != 'x') {
               var xPos = fretNum * zoomFretSize + chordNameIndex * chordOffset;
-              var radius = zoomStringSpacing / 2;
+              var radius = Math.min(chordOffset, zoomStringSpacing / 2);
 
-              var can2 = document.createElement('canvas');
-              can2.width = zoomWidth;
-              can2.height = zoomHeight;
-              ctx2 = can2.getContext('2d');
-
-              ZOOM_CTX.beginPath();
-              ZOOM_CTX.arc(xPos,yPos,radius,0,2*Math.PI);
               ZOOM_CTX.fillStyle = chordColor;
-              ZOOM_CTX.fill();
-              ZOOM_CTX.stroke();
+              switch(mark) {
+                case 'circle':
+                  ZOOM_CTX.beginPath();
+                  ZOOM_CTX.arc(xPos,yPos,radius,0,2*Math.PI);
+                  ZOOM_CTX.fill();
+                  ZOOM_CTX.stroke();
+                  break;
+                case 'letter':
+                  var height = radius*2
+                  ZOOM_CTX.font= height + "px Sans";
+                  ZOOM_CTX.fillText(self.displayNote(noteName), xPos - radius/2, yPos + radius/2, height);
+                  break;
+              }
             }
           })
         })
@@ -313,7 +328,7 @@ var app  = new Vue({
 
       this.drawPositionBorder();
       this.drawZoomedFretboard();
-      if (this.clickedY === null) this.drawFingers();
+      if (this.clickedY === null) this.drawFingers('letter');
 
       // ZOOM_CTX.restore();
     }

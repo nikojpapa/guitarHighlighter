@@ -32,11 +32,11 @@
       %ul.nav.nav-tabs.nav-justified
         %li.active{:':class'=> "[tabWidthClass]"}
           %a{:id=>"alltab", :'data-toggle'=>"tab", :href=>"#chordsTab", :'@click'=>"selectedChord = 'all'"}All Chords
-        %template{:'v-for'=> "(strings, chordName) in chordShapes"}
+        %template{:'v-for'=> "(strings, chordName, index) in chordShapes"}
           %li{:':class'=> "[tabWidthClass]"}
             %a{:':id'=>"chordName + 'tab'", :'data-toggle'=>"tab", :href=>"#chordsTab", :'@click'=>"selectedChord = chordName"}
-              {{chordName}}
-              %span.glyphicon.glyphicon-remove{:'@click.prevent'=>"removeChord(chordName, $event)", :'data-toggle'=>false}
+              {{displayChord(chordName)}}
+              %span.glyphicon.glyphicon-remove{:'@click.prevent'=>"removeChord(index, $event)", :'data-toggle'=>false}
         %li{:':class'=> "[tabWidthClass]"}
           %a{:id=>"newtab", :'data-toggle'=>"tab", :href=>"#newChordTab", :'@click'=>"selectedChord = 'new'",}+
       .tab-content
