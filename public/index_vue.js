@@ -70,11 +70,7 @@ var app  = new Vue({
     clickedX: null,
     moveType: null,
     currentBorderY: 0,
-    fretboardPointer: {},
-    // zoomScale            : {y:1,x:1},
-    // zoomLOffset          : 0,
-    // zoomFretSize         : null,
-    // zoomStringSpacing    : null
+    fretboardPointer: {}
   },
   computed: {
     tabWidthClass: function() {
@@ -97,6 +93,21 @@ var app  = new Vue({
     }
   },
   methods: {
+    fretboardStyle: function() {
+      var scaledCurrentBorderY = 0,
+          scaledBorderHeight   = 0;
+      if (FRETBOARD_DIV!==null) {
+        scaledCurrentBorderY = getScaledFretboardPos(FRETBOARD_DIV, this.currentBorderY, 0, true).y;
+        scaledBorderHeight   = getScaledFretboardPos(FRETBOARD_DIV, this.currentBorderY + this.fretboardBorderHeight(), 0, true).y;
+        console.log(scaledCurrentBorderY);
+      }
+      console.log(scaledCurrentBorderY);
+      return {
+        'background-image': "url(images/blank_fretboard_vertical.png), linear-gradient(#cdaa7d 0%, #cdaa7d " + scaledCurrentBorderY + "px, #deb887 " + scaledCurrentBorderY + "px, #deb887 " + scaledBorderHeight + "px, #cdaa7d " + scaledBorderHeight + "px, #cdaa7d 100%)",
+        'background-size': "100% 100%",
+        'background-repeat': "no-repeat"
+      }
+    },
     displayNote          : function(noteString) {
       return capitalizeFirstLetter(noteString.slice(0,-1));
     },
@@ -133,11 +144,8 @@ var app  = new Vue({
       }
     },
     zoomFretSize         : function() {return this.imgFretSize('vertical') * this.zoomScale().x;},
-    // zoomLOffset          : function() {return this.imgTOffset('vertical') * this.zoomScale().x;},
     zoomTOffset          : function() {return this.imgROffset('vertical') * this.zoomScale().y;},
-    // zoomBOffset          : function() {return this.imgLOffset('vertical') * this.zoomScale().y;},
     zoomStringSpacing    : function() {return this.imgStringSpacing('vertical') * this.zoomScale().y;},
-    // startingFretPx      : function() {return (this.startingFret - 1) * this.imgFretSize();},
     mouseCoords: function(event) {
       return getMousePos(FRETBOARD_DIV, event);
     },
@@ -173,8 +181,6 @@ var app  = new Vue({
     borderClick: function(event) {
       var currentBorderY = this.currentBorderY;
       var borderHeight   = this.imgBorderHeight();
-      var clientY        = event.clientY;
-      var clientX        = event.clientX;
       var clickedY       = this.currentY(event);
       var clickedX       = this.currentX(event);
       if (this.withinBorder(clickedY, clickedX)) {

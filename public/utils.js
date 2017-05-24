@@ -77,16 +77,25 @@ function getScale(canvas) {
   }
 }
 
-function getMousePos(canvas, evt) {  //Taken from http://stackoverflow.com/a/17130415/3869199
+function getScaledFretboardPos(canvas, yPos, xPos, reverse=false) {
+  // if (canvas===null) return null;
   var rect = canvas.getBoundingClientRect(), // abs. size of element
       scale = getScale(canvas),
       scaleX = scale.x,
       scaleY = scale.y
 
-  return {
-    x: (evt.clientX - rect.left) * scaleX,   // scale mouse coordinates after they have
-    y: (evt.clientY - rect.top) * scaleY     // been adjusted to be relative to element
+  if (reverse) return {
+    x: xPos / scaleX + rect.left,   // scale mouse coordinates after they have
+    y: yPos / scaleY + rect.top     // been adjusted to be relative to element
   }
+  else return {
+    x: (xPos - rect.left) * scaleX,   // scale mouse coordinates after they have
+    y: (yPos - rect.top) * scaleY     // been adjusted to be relative to element
+  }
+}
+
+function getMousePos(canvas, evt) {  //Taken from http://stackoverflow.com/a/17130415/3869199
+  return getScaledFretboardPos(canvas, evt.clientY, evt.clientX);
 }
 
 function drawRotated(degrees){
