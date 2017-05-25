@@ -13,7 +13,7 @@ ZOOM_CTX                = null;
 // FRETBOARD_R_OFFSET      = null;
 // FRETBOARD_T_OFFSET      = null;
 // FRETBOARD_B_OFFSET      = null;
-NUM_FRETS            = 19;
+NUM_FRETS            = 16;
 BORDER_EDGE_SIZE        = 1;
 
 $(function() {
@@ -121,10 +121,10 @@ var app  = new Vue({
     },
     imgHeight            : function(orientation) {if (orientation==='vertical') return FRETBOARD_IMG.height; else if (orientation==='horizontal') return FRETBOARD_IMG_HORIZ.height;},
     imgWidth             : function(orientation) {if (orientation==='vertical') return FRETBOARD_IMG.width; else if (orientation==='horizontal') return FRETBOARD_IMG_HORIZ.width;},
-    imgTOffset           : function(orientation) {return this.imgHeight(orientation) * 0.03;},
-    imgBOffset           : function(orientation) {return this.imgHeight(orientation) * 0.01;},
-    imgLOffset           : function(orientation) {return this.imgWidth(orientation)  * 0.035;},
-    imgROffset           : function(orientation) {return this.imgWidth(orientation)  * 0.125;},
+    imgTOffset           : function(orientation) {return this.imgHeight(orientation) * 0.00;},
+    imgBOffset           : function(orientation) {return this.imgHeight(orientation) * 0.00;},
+    imgLOffset           : function(orientation) {return this.imgWidth(orientation)  * 0.19;},
+    imgROffset           : function(orientation) {return this.imgWidth(orientation)  * 0.12;},
     imgFretSize          : function(orientation) {return (this.imgHeight(orientation) - this.imgTOffset(orientation) - this.imgBOffset(orientation)) / NUM_FRETS;},
     imgStringSpacing     : function(orientation) {return (this.imgWidth(orientation) - this.imgLOffset(orientation) - this.imgROffset(orientation)) / this.numStrings - 1},
     imgBorderHeight      : function(orientation) {return this.positionSize * this.imgFretSize(orientation);},
