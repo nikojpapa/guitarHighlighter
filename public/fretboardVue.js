@@ -1,20 +1,22 @@
-FRETBOARD_DIV       = null;
-FRETBOARD_CTX       = null;
-FRETBOARD_IMG       = new FretboardImage('images/blank_fretboard_vertical.png');
+FRETBOARD_DIV = null;
+FRETBOARD_CTX = null;
+FRETBOARD_IMG = new FretboardImage('images/blank_fretboard_vertical.png');
 
 NUM_FRETS         = 16
 BORDER_EDGE_SIZE  = 1;
 
 Vue.component('fretboard', {
   template: '#fretboardTemplate',
+  created: function() {
+    eventHub.$on('drawPositionBorder', this.drawPositionBorder);
+  },
   mounted: function() {
     FRETBOARD_DIV = $('#fretboard')[0];
     FRETBOARD_CTX = FRETBOARD_DIV.getContext('2d');
   },
-  // beforeUpdated: function() {
-  //   console.log('hi');
-  //   drawPositionBorder();
-  // },
+  beforeDestroy: function() {
+    eventHub.$off('drawPositionBorder', this.drawPositionBorder);
+  },
   props: [
     'startingFret',
     'positionSize'
@@ -158,6 +160,9 @@ Vue.component('fretboard', {
       FRETBOARD_CTX.rect(0, yPos, this.fretboardWidth(), height);
       FRETBOARD_CTX.stroke();
       this.currentBorderY = yPos;
+      
+      eventHub.$emit('drawZoomedFretboard');
+      if (this.clickedY===null) eventHub.$emit('drawFingers', 'letter');
     },
   }
 })

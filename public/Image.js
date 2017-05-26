@@ -17,5 +17,5 @@ class FretboardImage {
   imgROffset() {return this.imgWidth()  * this.rOff;};
   imgFretSize(numFrets) {return (this.imgHeight() - this.imgTOffset() - this.imgBOffset()) / numFrets;};
   imgStringSpacing(numStrings) {return (this.imgWidth() - this.imgLOffset() - this.imgROffset()) / numStrings - 1;};
-  imgBorderHeight(positionSize) {return positionSize * this.imgFretSize();};
+  imgBorderHeight(positionSize, numFrets) {return positionSize * this.imgFretSize(numFrets);};
 }

@@ -17,7 +17,7 @@
     #firstCol.col-xs-2
       %fretboard{:ref=>"fretboard", :':starting-fret.sync'=>"startingFret", :':position-size.sync'=>"positionSize"}
     #middleCol.col-xs-10
-      / %zoom
+      %zoom{:ref=>"zoom", :':starting-fret'=>"startingFret", :':position-size'=>"positionSize"}
 
 %script{src:'utils.js'}
 %script{src:'musicFuncs.js'}
