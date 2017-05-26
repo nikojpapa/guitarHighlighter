@@ -1,0 +1,3 @@
+%template{:id=>"fretboardTemplate"}
+  #fretboardContainer
+    %canvas.shadow.fullSize{id:"fretboard", :':style'=>"fretboardStyle()", :'@mousedown'=>"borderClick($event)", :'@mouseup'=>"borderRelease($event)", :'@mousemove'=>"moveBorder($event)"}

@@ -7,9 +7,5 @@ set :static, true
 set :views, 'views'
 
 get '/' do
-    haml :index_vue
-end
-
-get '/angular/?' do
-    haml :index_angular
+    haml :index
 end

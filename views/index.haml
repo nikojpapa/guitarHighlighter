@@ -1,0 +1,28 @@
+%link{rel:'stylesheet', href:'vendor/bootstrap-3.3.7-dist/css/bootstrap.min.css'}
+%link{rel:'stylesheet', href:'index.css'}
+
+%script{src:'vendor/jquery-3.2.1.min.js'}
+%script{src:'vendor/bootstrap-3.3.7-dist/js/bootstrap.min.js'}
+%script{src:'vendor/vue.js'}
+%script{src:'vendor/vue-strap-1.1.37/dist/vue-strap.min.js'}
+%script{src:'vendor/teoria.js'}
+
+= haml :settingsTemplate
+= haml :fretboardTemplate
+= haml :zoomTemplate
+
+%div.container-fluid{:id=> "myApp"}
+  / %settings
+  .row
+    #firstCol.col-xs-2
+      %fretboard{:ref=>"fretboard", :':starting-fret.sync'=>"startingFret", :':position-size.sync'=>"positionSize"}
+    #middleCol.col-xs-10
+      / %zoom
+
+%script{src:'utils.js'}
+%script{src:'musicFuncs.js'}
+%script{src:'Image.js'}
+%script{src:'settingsVue.js'}
+%script{src:'fretboardVue.js'}
+%script{src:'zoomVue.js'}
+%script{src:'index.js'}

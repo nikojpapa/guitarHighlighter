@@ -1,0 +1,13 @@
+%template{:id=> 'settingsTemplate'}
+  #settingsDiv
+    #settingBtn.glyphicon.glyphicon-cog.col-sm-1{:'data-toggle'=>"collapse", :'data-target'=>"#settingsForm"}
+      / %span.glyphicon.glyphicon-cog
+    #settingsForm.collapse.col-sm-12
+      .form-group
+        %label{:for=>"openStrings"}Tuning:
+        %ul.list-group
+        %template{:id=> "openStrings", :'v-for'=> "stringNum in 6"}
+          %li.list-group-item{:':class'=> "{disabled: useStrings.indexOf(stringNum-1) === -1}"}
+            %label {{stringNum}}:
+            %input{:type=>"text", :'v-model.number'=> "openStrings[stringNum-1]"}
+            %input{:type=>"checkbox", :':value'=> "stringNum - 1", :'v-model'=> "useStrings"}

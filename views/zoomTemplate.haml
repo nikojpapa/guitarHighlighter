@@ -1,0 +1,22 @@
+%template{:id=>"zoomTemplate"}
+  #zoomContainer
+    %ul.nav.nav-tabs.nav-justified
+      %li.active{:':class'=> "[tabWidthClass]"}
+        %a{:id=>"alltab", :'data-toggle'=>"tab", :href=>"#chordsTab", :'@click'=>"selectedChord = 'all'"}All Chords
+      %template{:'v-for'=> "(strings, chordName, index) in chordShapes"}
+        %li{:':class'=> "[tabWidthClass]"}
+          %a{:':id'=>"chordName + 'tab'", :'data-toggle'=>"tab", :href=>"#chordsTab", :'@click'=>"selectedChord = chordName"}
+            {{displayChord(chordName)}}
+            %span.glyphicon.glyphicon-remove{:'@click.prevent'=>"removeChord(index, $event)", :'data-toggle'=>false}
+      %li{:':class'=> "[tabWidthClass]"}
+        %a{:id=>"newtab", :'data-toggle'=>"tab", :href=>"#newChordTab", :'@click'=>"selectedChord = 'new'",}+
+    .tab-content
+      #toggleFretboard.pull-left.full-height
+        %span.glyphicon.glyphicon-triangle-left{:'data-toggle'=>"collapse", :'data-target'=>"#firstCol"}
+      #chordsTab.tab-pane.active.jumbotron.shadow.fullSize
+        %canvas.fullSize{:id=>"zoom"}
+      #newChordTab.tab-pane
+        .form-group
+          %label{:for=>"newChord"}New Chord:
+          %input{:id=>"newChord", :type=>"text", :'v-model'=> "newChord", :'@keyup.enter'=> "createNewChord"}
+          %button{:id=>"newChordBtn", :type=>"button", :'@click'=>"createNewChord"}Create
